@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>My Vault | Claim My Rights</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="vault.css">
+<style>
+/* Optional styling for disabled dummy button */
+#fileBtn {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Vault note card */
+.note-card {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.note-card button {
+    margin-right: 5px;
+    margin-top: 5px;
+}
+
+/* ✅ Button alignment fix */
+.vault-btn-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <div class="logo">Claim My Rights</div>
+    <div class="nav-links">
+        <a href="home.html">Home</a>
+        <a href="legal-guidance.html">Legal Guidance</a>
+        <a href="risk.html">Risk</a>
+        <a href="complaint.html">Complaint</a>
+        <a href="lawyer.html">Lawyer / NGO</a>
+        <a href="govt.html">Govt Aid</a>
+        <a href="vault.html">Vault</a>
+    </div>
+</nav>
+
+<section class="page-box">
+    <h2>My Vault</h2>
+
+    <textarea id="note" placeholder="Write your note..."></textarea>
+
+    <select id="noteType">
+        <option value="document">Document</option>
+        <option value="bill">Bill</option>
+        <option value="warranty">Warranty</option>
+        <option value="message">Message</option>
+    </select>
+
+    <!-- ✅ Properly aligned buttons -->
+    <div class="vault-btn-group">
+        <!-- Dummy file upload button -->
+        <button id="fileBtn" disabled title="File upload coming soon">
+            Upload File (Coming Soon)
+        </button>
+
+        <button id="saveBtn" disabled>Save</button>
+    </div>
+
+    <div id="noteList" class="vault-note-list"></div>
+</section>
+
+<!-- Firebase Modular SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, query, where, getDocs, serverTimestamp, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+
+/* 🔹 Firebase config - REPLACE with your real config */
+// Firebase config – replace with your actual config
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "claimmyrights-bc3dd.firebaseapp.com",
+  projectId: "claimmyrights-bc3dd",
+  storageBucket: "claimmyrights-bc3dd.firebasestorage.app",
+  messagingSenderId: "930085915585",
+  appId: "1:930085915585:web:b7cc6e7dfa32df58cfbd40"
+};
+
+/* 🔹 Initialize Firebase */
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+/* 🔹 DOM elements */
+const saveBtn = document.getElementById("saveBtn");
+const noteInput = document.getElementById("note");
+const noteType = document.getElementById("noteType");
+const noteList = document.getElementById("noteList");
+const fileBtn = document.getElementById("fileBtn");
+
+let currentUser = null;
+let editingNoteId = null; // Track note being edited
+
+/* 🔹 Auth Check */
+onAuthStateChanged(auth, (user) => {
+    if (!user) {
+        alert("Login required!");
+        window.location.href = "login.html";
+        return;
+    }
+    currentUser = user;
+    saveBtn.disabled = false;
+    loadNotes();
+});
+
+/* 🔹 Save / Update Note */
+saveBtn.addEventListener("click", async () => {
+    if (!currentUser) return alert("User not ready. Wait a second.");
+    const text = noteInput.value.trim();
+    if (!text) return alert("Please type a note.");
+
+    try {
+        if(editingNoteId){
+            // Update existing note
+            await updateDoc(doc(db, "user_notes", editingNoteId), {
+                noteText: text,
+                noteType: noteType.value
+            });
+            editingNoteId = null;
+            saveBtn.textContent = "Save";
+        } else {
+            // Add new note
+            await addDoc(collection(db, "user_notes"), {
+                uid: currentUser.uid,
+                noteText: text,
+                noteType: noteType.value,
+                createdAt: serverTimestamp()
+            });
+        }
+        noteInput.value = "";
+        loadNotes();
+    } catch (err) {
+        console.error(err);
+        alert("Failed to save note. Check console.");
+    }
+});
+
+/* 🔹 Load Notes */
+async function loadNotes() {
+    if (!currentUser) return;
+
+    noteList.innerHTML = "";
+    const q = query(collection(db, "user_notes"), where("uid", "==", currentUser.uid));
+    const snap = await getDocs(q);
+
+    snap.forEach(docSnap => {
+        const d = docSnap.data();
+        const noteId = docSnap.id;
+
+        const noteCard = document.createElement("div");
+        noteCard.className = "note-card";
+        noteCard.innerHTML = `
+            <strong>${d.noteType.toUpperCase()}</strong>
+            <p>${d.noteText}</p>
+            <button class="edit-btn">Edit</button>
+            <button class="delete-btn">Delete</button>
+        `;
+
+        // Edit
+        noteCard.querySelector(".edit-btn").addEventListener("click", () => {
+            noteInput.value = d.noteText;
+            noteType.value = d.noteType;
+            editingNoteId = noteId;
+            saveBtn.textContent = "Update";
+        });
+
+        // Delete
+        noteCard.querySelector(".delete-btn").addEventListener("click", async () => {
+            if(confirm("Are you sure you want to delete this note?")){
+                try {
+                    await deleteDoc(doc(db, "user_notes", noteId));
+                    loadNotes();
+                } catch(err) {
+                    console.error(err);
+                    alert("Failed to delete note.");
+                }
+            }
+        });
+
+        noteList.appendChild(noteCard);
+    });
+}
+</script>
+</body>
+</html>

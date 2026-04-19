@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login | Claim My Rights</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <div class="logo">Claim My Rights</div>
+    <div class="nav-links">
+        <a href="home.html">Home</a>
+        <a href="legal-guidance.html">Legal Guidance</a>
+        <a href="risk.html">Risk Analysis</a>
+        <a href="complaint.html">Complaint</a>
+        <a href="lawyer.html">Lawyer / NGO</a>
+        <a href="govt.html">Govt Aid</a>
+        <a href="vault.html">Vault</a> <!-- New Vault module link -->
+        <a href="#" id="auth-btn">Login</a> <!-- This will dynamically change -->
+    </div>
+</nav>
+
+<!-- LOGIN FORM -->
+<section class="page-box">
+    <h2>Login</h2>
+    <p class="desc">Enter your email and password to access LawMate</p>
+
+    <form id="login-form">
+        <input type="email" id="login-email" placeholder="Email Address" required>
+        <input type="password" id="login-password" placeholder="Password" required>
+        <button type="submit">Login</button>
+    </form>
+
+    <p style="text-align:center; margin-top:15px;">
+        Don't have an account? <a href="signup.html">Sign Up here</a>
+    </p>
+
+    <p id="login-msg" style="text-align:center; margin-top:10px; color:red;"></p>
+</section>
+
+<!-- FIREBASE LOGIN SCRIPT -->
+<script type="module">
+// 1️⃣ Import Firebase modules
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
+
+// 2️⃣ Firebase config (replace with your actual config)
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBpfuDQJKj78xQKfTUI7PNviOYdJRRzx0A",
+  authDomain: "claimmyrights-bc3dd.firebaseapp.com",
+  projectId: "claimmyrights-bc3dd",
+  storageBucket: "claimmyrights-bc3dd.firebasestorage.app",
+  messagingSenderId: "930085915585",
+  appId: "1:930085915585:web:b7cc6e7dfa32df58cfbd40"
+};
+
+// 3️⃣ Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+// 4️⃣ Login logic
+const form = document.getElementById('login-form');
+const msg = document.getElementById('login-msg');
+
+form.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value.trim();
+
+    if(!email || !password){
+        msg.style.color = "red";
+        msg.textContent = "Please fill in all fields.";
+        return;
+    }
+
+    console.log("Trying login:", email); // debug log
+
+    signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            msg.style.color = "green";
+            msg.textContent = "Login successful! Redirecting...";
+            console.log("Login successful:", userCredential.user);
+            setTimeout(() => {
+                window.location.href = "home.html"; // redirect after login
+            }, 1200);
+        })
+        .catch((error) => {
+            console.error("Login error:", error);
+            msg.style.color = "red";
+            msg.textContent = error.message;
+        });
+});
+</script>
+
+</body>
+</html>

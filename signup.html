@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign Up | Claim My Rights</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo">Claim My Rights</div>
+    <div class="nav-links">
+        <a href="home.html">Home</a>
+        <a href="legal-guidance.html">Legal Guidance</a>
+        <a href="risk.html">Risk Analysis</a>
+        <a href="complaint.html">Complaint</a>
+        <a href="lawyer.html">Lawyer / NGO</a>
+        <a href="govt.html">Govt Aid</a>
+        <a href="vault.html">Vault</a>
+        <a href="#" id="auth-btn">Login</a>
+    </div>
+</nav>
+
+<section class="page-box">
+    <h2>Create Your Account</h2>
+    <p class="desc">Sign up to access AI-powered legal assistance</p>
+
+    <form id="signup-form">
+        <input type="text" id="signup-name" placeholder="Your Full Name" required>
+        <input type="email" id="signup-email" placeholder="Email Address" required>
+        <input type="password" id="signup-password" placeholder="Password (min 6 chars)" required>
+        <button type="submit" id="signup-btn">Sign Up</button>
+    </form>
+
+    <p style="text-align:center; margin-top:15px;">
+        Already have an account? <a href="login.html">Login here</a>
+    </p>
+
+    <p id="signup-msg" style="text-align:center; margin-top:10px;"></p>
+</section>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
+
+document.addEventListener("DOMContentLoaded", () => {
+
+   // Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBpfuDQJKj78xQKfTUI7PNviOYdJRRzx0A",
+  authDomain: "claimmyrights-bc3dd.firebaseapp.com",
+  projectId: "claimmyrights-bc3dd",
+  storageBucket: "claimmyrights-bc3dd.firebasestorage.app",
+  messagingSenderId: "930085915585",
+  appId: "1:930085915585:web:b7cc6e7dfa32df58cfbd40"
+};
+
+    if (!firebaseConfig.apiKey) {
+        console.error("Firebase config missing.");
+        document.getElementById("signup-msg").textContent =
+            "Firebase not configured. Please contact admin.";
+        return;
+    }
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    const form = document.getElementById('signup-form');
+    const msg = document.getElementById('signup-msg');
+    const btn = document.getElementById('signup-btn');
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        msg.textContent = "";
+        msg.style.color = "red";
+
+        const name = document.getElementById('signup-name').value.trim();
+        const email = document.getElementById('signup-email').value.trim();
+        const password = document.getElementById('signup-password').value.trim();
+
+        if (!name || !email || !password) {
+            msg.textContent = "Please fill in all fields.";
+            return;
+        }
+
+        if (password.length < 6) {
+            msg.textContent = "Password must be at least 6 characters.";
+            return;
+        }
+
+        try {
+            btn.disabled = true;
+            btn.textContent = "Creating account...";
+
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+
+            msg.style.color = "green";
+            msg.textContent = "Sign-up successful! Redirecting...";
+
+            console.log("User created:", userCredential.user);
+
+            setTimeout(() => {
+                window.location.href = "login.html";
+            }, 1200);
+
+        } catch (error) {
+            console.error(error);
+
+            if (error.code === "auth/email-already-in-use") {
+                msg.textContent = "Email already registered.";
+            } else if (error.code === "auth/invalid-email") {
+                msg.textContent = "Invalid email address.";
+            } else if (error.code === "auth/weak-password") {
+                msg.textContent = "Weak password. Try a stronger one.";
+            } else {
+                msg.textContent = error.message;
+            }
+
+        } finally {
+            btn.disabled = false;
+            btn.textContent = "Sign Up";
+        }
+    });
+
+});
+</script>
+
+</body>
+</html>

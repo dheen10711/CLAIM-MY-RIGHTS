@@ -1,0 +1,48 @@
+.vault-note-list {
+  margin-top: 20px;
+}
+
+.vault-note-list .note-card {
+  background: #eef1ff;
+  border-left: 6px solid #5c6bc0;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 12px;
+}
+
+.vault-note-list .note-card strong {
+  color: #3949ab;
+  font-size: 14px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.vault-note-list .note-card p {
+  font-size: 14px;
+  color: #333;
+  margin: 0;
+}
+
+#note, #noteType {
+  width: 100%;
+  margin-top: 15px;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+button {
+  margin-top: 18px;
+  padding: 12px;
+  width: 100%;
+  font-size: 15px;
+  background: #5c6bc0;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #3f51b5;
+}

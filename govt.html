@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Government Aid | Claim My Rights</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+   <!-- NAVBAR -->
+<nav class="navbar">
+    <div class="logo">Claim My Rights</div>
+    <div class="nav-links">
+        <a href="home.html">Home</a>
+        <a href="legal-guidance.html">Legal Guidance</a>
+        <a href="risk.html">Risk Analysis</a>
+        <a href="complaint.html">Complaint</a>
+        <a href="lawyer.html">Lawyer / NGO</a>
+        <a href="govt.html">Govt Aid</a>
+        <a href="vault.html">Vault</a> <!-- New Vault module link -->
+    </div>
+</nav>
+</header>
+
+<section class="page-box">
+    <h2>Government Legal Aid</h2>
+    <p class="desc">Find government schemes you are eligible for</p>
+
+    <!-- LANGUAGE -->
+    <select id="language">
+        <option value="en-IN">English</option>
+        <option value="ta-IN">Tamil</option>
+        <option value="hi-IN">Hindi</option>
+    </select>
+
+    <!-- CATEGORY -->
+    <select id="eligibilityCategory">
+        <option value="">Select Category</option>
+        <option value="Women">Women</option>
+        <option value="Senior Citizen">Senior Citizen</option>
+        <option value="Labour">Labour</option>
+    </select>
+
+    <!-- STATE -->
+    <select id="stateSelect">
+        <option value="">Select State</option>
+        <option value="Tamil Nadu">Tamil Nadu</option>
+        <option value="Karnataka">Karnataka</option>
+        <option value="Andhra Pradesh">Andhra Pradesh</option>
+        <option value="Kerala">Kerala</option>
+    </select>
+
+    <!-- ISSUE INPUT -->
+    <textarea
+        id="aidInput"
+        rows="5"
+        placeholder="Describe your problem (Speak or type)..."
+    ></textarea>
+
+    <!-- VOICE CONTROLS (unchanged) -->
+    <div class="button-group">
+        <button onclick="startListening('aidInput')">🎤 Speak</button>
+        <button onclick="stopListening()">⏹ Stop</button>
+    </div>
+
+    <!-- MAIN BUTTON -->
+    <button id="aidBtn">Check Government Aid</button>
+</section>
+
+<!-- IMPORTANT: script.js MUST be loaded AFTER HTML -->
+<script src="script.js"></script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
+
+// Firebase config – replace with your actual config
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBpfuDQJKj78xQKfTUI7PNviOYdJRRzx0A",
+  authDomain: "claimmyrights-bc3dd.firebaseapp.com",
+  projectId: "claimmyrights-bc3dd",
+  storageBucket: "claimmyrights-bc3dd.firebasestorage.app",
+  messagingSenderId: "930085915585",
+  appId: "1:930085915585:web:b7cc6e7dfa32df58cfbd40"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+// Protect page
+onAuthStateChanged(auth, (user) => {
+    if (!user) {
+        // User is NOT logged in → redirect to login
+        alert("You must log in first!");
+        window.location.href = "login.html";
+    }
+    // If user is logged in → do nothing, allow access
+});
+</script>
+
+</body>
+</html>

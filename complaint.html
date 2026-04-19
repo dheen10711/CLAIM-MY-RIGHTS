@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Complaint Generator | Claim My Rights</title>
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* AI Popup */
+        .popup {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+        .popup.hidden {
+            display: none;
+        }
+        .popup-content {
+            background: #fff;
+            padding: 20px;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 8px;
+        }
+        .popup-content textarea {
+            width: 100%;
+            margin-top: 10px;
+        }
+        .popup-actions {
+            margin-top: 10px;
+            text-align: right;
+        }
+        .popup-actions button {
+            margin-left: 10px;
+        }
+    </style>
+</head>
+
+<body>
+<header>
+<nav class="navbar">
+    <div class="logo">Claim My Rights</div>
+    <div class="nav-links">
+        <a href="home.html">Home</a>
+        <a href="legal-guidance.html">Legal Guidance</a>
+        <a href="risk.html">Risk</a>
+        <a href="complaint.html">Complaint</a>
+        <a href="lawyer.html">Lawyer / NGO</a>
+        <a href="govt.html">Govt Aid</a>
+        <a href="vault.html">Vault</a>
+    </div>
+</nav>
+</header>
+
+<section class="page-box">
+    <h2>Complaint Generator</h2>
+
+    <input id="complainantName" placeholder="Your Name">
+
+    <select id="complaintTo">
+        <option>Police Station</option>
+        <option>Consumer Court</option>
+        <option>Cyber Crime</option>
+    </select>
+
+    <textarea id="complaintInput" rows="6" placeholder="Describe issue..."></textarea>
+
+    <select id="language">
+        <option value="en-IN">English</option>
+        <option value="ta-IN">Tamil</option>
+        <option value="hi-IN">Hindi</option>
+        <option value="te-IN">Telugu</option>
+        <option value="kn-IN">Kannada</option>
+    </select>
+
+    <div class="button-group">
+        <button id="complaintBtn">Generate</button>
+        <button onclick="startListening('complaintInput')">🎤 Speak</button>
+        <button onclick="stopListening()">⏹ Stop</button>
+    </div>
+</section>
+
+<!-- AI OUTPUT POPUP -->
+<div id="complaintPopup" class="popup hidden">
+    <div class="popup-content">
+        <h3>Generated Complaint</h3>
+        <textarea id="generatedComplaint" rows="10" readonly></textarea>
+        <div class="popup-actions">
+            <button id="downloadBtn" onclick="downloadComplaint()" disabled>⬇ Download Complaint</button>
+            <button onclick="closePopup()">Close</button>
+        </div>
+    </div>
+</div>
+
+<script src="script.js"></script>
+
+<!-- FIREBASE AUTH -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBpfuDQJKj78xQKfTUI7PNviOYdJRRzx0A",
+  authDomain: "claimmyrights-bc3dd.firebaseapp.com",
+  projectId: "claimmyrights-bc3dd",
+  storageBucket: "claimmyrights-bc3dd.firebasestorage.app",
+  messagingSenderId: "930085915585",
+  appId: "1:930085915585:web:b7cc6e7dfa32df58cfbd40"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+onAuthStateChanged(auth, (user) => {
+    if (!user) {
+        alert("You must log in first!");
+        window.location.href = "login.html";
+    }
+});
+</script>
+
+</body>
+</html>
